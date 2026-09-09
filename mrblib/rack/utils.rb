@@ -61,6 +61,17 @@ module Rack
       parse_nested_query(query)
     end
 
+    def parse_cookies_header(header)
+      cookies = {}
+      header.to_s.split(";").each do |part|
+        key, value = part.strip.split("=", 2)
+        next if key.nil? || key.empty? || cookies.key?(key)
+
+        cookies[key] = unescape(value || "")
+      end
+      cookies
+    end
+
     def parse_nested_query(query)
       params = {}
       query.to_s.split(/[&;]/).each do |part|
