@@ -45,6 +45,14 @@ env = {
   "rack.input" => Input.new("from=body&name=pico")
 }
 request = Rack::Request.new(env)
+assert(request.cookies == {}, "missing cookies")
+env["HTTP_COOKIE"] = "other=value; CF_Authorization=first.jwt.token; CF_Authorization=second; encoded=a%3Db; empty="
+assert(request.cookies == {
+  "other" => "value", "CF_Authorization" => "first.jwt.token", "encoded" => "a=b", "empty" => ""
+}, "cookie parsing preserves the first duplicate")
+env["HTTP_COOKIE"] = "CF_Authorization=changed"
+assert(request.cookies["CF_Authorization"] == "changed", "cookies reflect header changes")
+env.delete("HTTP_COOKIE")
 assert(request.post?, "request method")
 assert(request.secure?, "request scheme")
 assert(request.host == "example.com", "request host")
@@ -76,6 +84,22 @@ class TraceMiddleware
     result
   end
 end
+
+class KeywordMiddleware
+  def initialize(app, prefix, marker:, &block)
+    @app, @prefix, @marker, @block = app, prefix, marker, block
+  end
+
+  def call(env)
+    env["keyword"] = @prefix + @marker + @block.call
+    @app.call(env)
+  end
+end
+keyword_app = Rack::Builder.new do
+  use(KeywordMiddleware, "prefix-", marker: "keyword") { "-block" }
+  run ->(env) { [200, {}, [env["keyword"]]] }
+end
+assert(keyword_app.call({}) == [200, {}, ["prefix-keyword-block"]], "middleware positional, keyword and block forwarding")
 
 builder = Rack::Builder.new
 builder.use TraceMiddleware, "outer"

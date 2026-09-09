@@ -10,8 +10,8 @@ module Rack
       instance_eval(&block) if block_given?
     end
 
-    def use(middleware, *arguments, &block)
-      @middleware << [middleware, arguments, block]
+    def use(middleware, *arguments, **options, &block)
+      @middleware << [middleware, arguments, options, block]
       nil
     end
 
@@ -27,8 +27,8 @@ module Rack
 
       app = @app
       @middleware.reverse_each do |entry|
-        middleware, arguments, block = entry
-        app = middleware.new(app, *arguments, &block)
+        middleware, arguments, options, block = entry
+        app = middleware.new(app, *arguments, **options, &block)
       end
       app
     end

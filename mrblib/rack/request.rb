@@ -15,6 +15,10 @@ module Rack
     def delete_header(name); env.delete(name) end
 
     def body; get_header(RACK_INPUT) end
+    def cookies
+      Utils.parse_cookies_header(get_header("HTTP_COOKIE"))
+    end
+
     def script_name; get_header(SCRIPT_NAME).to_s end
     def script_name=(value); set_header(SCRIPT_NAME, value.to_s) end
     def path_info; get_header(PATH_INFO).to_s end
