@@ -26,6 +26,7 @@ task :test do
   sh executable, File.join(PROJECT_ROOT, "test", "smoke.rb")
   sh executable, File.join(PROJECT_ROOT, "test", "session_hash.rb")
   sh executable, File.join(PROJECT_ROOT, "test", "session.rb")
+  sh executable, File.join(PROJECT_ROOT, "test", "cookie_simple.rb")
 end
 
 task default: :test

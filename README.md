@@ -11,7 +11,8 @@ application, not to replicate all Rack middleware and server features.
 - `Rack::Request` request metadata, query/form parameters, host, and scheme
 - `Rack::Response` buffered responses and content-length generation
 - `Rack::Builder`, `Rack::Head`, `Rack::MethodOverride`, and `Rack::CommonLogger`
-- `Rack::Session::Abstract::Persisted`, a minimal cookie-based session backend interface
+- `Rack::Session::Abstract::Persisted`, a minimal cookie-based session backend interface,
+  and `Rack::Session::CookieSimple`, an AES-256-GCM encrypted cookie store
 - `Rack::Mime`, a small `Rack::Files`, and a plain-text `Rack::ShowExceptions`
 
 The initial target supports buffered, `application/x-www-form-urlencoded`
@@ -85,3 +86,20 @@ and `session_changed?(snapshot, data)` to avoid unnecessary writes.
 This is not a full rack-session port: lazy loading, SessionId/private ID hashing,
 SessionHash#destroy, URL-based IDs, callable SameSite, partitioned cookies,
 max_age, assume_ssl and the Context API are not implemented.
+
+`Rack::Session::CookieSimple` stores the session Hash as encrypted JSON. It
+requires `Random`, `JSON`, and the PicoRuby Worker `Crypto` API. Its `secret`
+must be exactly 32 raw bytes for AES-256. `Crypto.encrypt` must generate a fresh
+12-byte IV and return `[iv, encrypted]`, with the authentication tag included in
+`encrypted`; `Crypto.decrypt` must reject authentication failures.
+
+```ruby
+use Rack::Session::CookieSimple,
+  secret: Random.bytes(32),
+  secure: true,
+  httponly: true,
+  same_site: :lax
+```
+
+Malformed, modified, or incorrectly encrypted cookies are discarded and start
+an empty session. There is no plaintext or legacy-cookie fallback.
