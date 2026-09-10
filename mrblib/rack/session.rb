@@ -155,7 +155,7 @@ module Rack
       SECRET_SIZE = 32
 
       def initialize(app, options = {})
-        %w[Random Crypto JSON].each do |name|
+        %w[SecureRandom Crypto JSON].each do |name|
           unless Object.const_defined?(name)
             raise NameError, "#{name} is required by Rack::Session::CookieSimple"
           end
@@ -174,7 +174,7 @@ module Rack
       private
 
       def generate_sid
-        Random.bytes(16).bytes.map do |byte|
+        SecureRandom.random_bytes(16).bytes.map do |byte|
           hex = byte.to_s(16)
           hex.bytesize == 1 ? "0#{hex}" : hex
         end.join

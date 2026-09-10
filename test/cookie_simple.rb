@@ -8,9 +8,24 @@ RUBY_DESCRIPTION = MRUBY_DESCRIPTION unless Object.const_defined?("RUBY_DESCRIPT
 
 begin
   Rack::Session::CookieSimple.new(empty_app, secret: secret)
-  raise "missing Crypto was accepted"
+  raise "missing SecureRandom was accepted"
 rescue NameError => error
-  assert_cookie_simple("Crypto constant check", error.message.include?("Crypto"))
+  assert_cookie_simple("SecureRandom constant check", error.message.include?("SecureRandom"))
+end
+
+module SecureRandom
+  class << self
+    def random_number(limit = nil)
+      @value = (@value || 0) + 1
+      limit ? @value % limit : @value
+    end
+
+    def random_bytes(size)
+      bytes = []
+      size.times { bytes << random_number(256).chr }
+      bytes.join
+    end
+  end
 end
 
 # Reversible test double for the PicoRuby Worker AES-GCM API.
@@ -21,7 +36,7 @@ module Crypto
     def encrypt(algorithm, secret, raw_data)
       @last_algorithm = algorithm
       @last_secret = secret
-      @last_iv = Random.bytes(12)
+      @last_iv = SecureRandom.random_bytes(12)
       [@last_iv, secret + raw_data.reverse + "tag"]
     end
 

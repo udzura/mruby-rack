@@ -20,7 +20,6 @@ MRuby::Build.new("mruby-rack-test") do |conf|
     mruby-numeric-ext
     mruby-object-ext
     mruby-proc-ext
-    mruby-random
     mruby-regexp
     mruby-sprintf
     mruby-string-ext

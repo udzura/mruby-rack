@@ -88,14 +88,14 @@ SessionHash#destroy, URL-based IDs, callable SameSite, partitioned cookies,
 max_age, assume_ssl and the Context API are not implemented.
 
 `Rack::Session::CookieSimple` stores the session Hash as encrypted JSON. It
-requires `Random`, `JSON`, and the PicoRuby Worker `Crypto` API. Its `secret`
+requires `SecureRandom`, `JSON`, and the PicoRuby Worker `Crypto` API. Its `secret`
 must be exactly 32 raw bytes for AES-256. `Crypto.encrypt` must generate a fresh
 12-byte IV and return `[iv, encrypted]`, with the authentication tag included in
 `encrypted`; `Crypto.decrypt` must reject authentication failures.
 
 ```ruby
 use Rack::Session::CookieSimple,
-  secret: Random.bytes(32),
+  secret: SecureRandom.random_bytes(32),
   secure: true,
   httponly: true,
   same_site: :lax
