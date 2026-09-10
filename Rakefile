@@ -24,6 +24,9 @@ task :test do
   Dir.chdir(root) { sh env, "rake" }
   executable = File.join(root, "build", "mruby-rack-test", "bin", "mruby")
   sh executable, File.join(PROJECT_ROOT, "test", "smoke.rb")
+  sh executable, File.join(PROJECT_ROOT, "test", "session_hash.rb")
+  sh executable, File.join(PROJECT_ROOT, "test", "session.rb")
+  sh executable, File.join(PROJECT_ROOT, "test", "cookie_simple.rb")
 end
 
 task default: :test
