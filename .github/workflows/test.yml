@@ -18,4 +18,5 @@ jobs:
         with:
           repository: picoruby/picoruby
           path: picoruby
+          submodules: recursive
       - run: PICORUBY_ROOT="$GITHUB_WORKSPACE/picoruby" rake test
