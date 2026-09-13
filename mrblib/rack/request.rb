@@ -88,6 +88,10 @@ module Rack
       env[RACK_SESSION] ||= {}
     end
 
+    def session_options
+      env[RACK_SESSION_OPTIONS] ||= {}
+    end
+
     def query_params
       query = query_string
       if env[RACK_REQUEST_QUERY_STRING] != query

@@ -28,5 +28,6 @@ MRuby::Build.new("mruby-rack-test") do |conf|
   end
 
   conf.gem gemdir: File.join(mruby_gems, "mruby-bin-mruby")
+  conf.gem gemdir: File.join(MRUBY_ROOT, "mrbgems", "picoruby-json")
   conf.gem gemdir: ENV.fetch("MRUBY_RACK_ROOT")
 end
